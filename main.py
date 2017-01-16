@@ -8,6 +8,8 @@
 # calc val at risk = in the worst x% of returns the average loss will be y%
 
 # Todo: implement methods to reduce the varianz
+
+
 from os.path import dirname, join
 
 import numpy as np

@@ -1,6 +1,6 @@
 
 
-from HelpScripts.normalDistGenerator import calcrandomnumbers
+from MonteCarlo.normalDistGenerator import calcrandomnumbers
 
 # Hold one the one hand, all settings used by the user, on the other hand the calculated random normal distribution
 # numbers
