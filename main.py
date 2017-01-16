@@ -22,7 +22,7 @@ from bokeh.io import curdoc
 from bokeh.sampledata.movies_data import movie_path
 
 conn = sql.connect(movie_path)
-query = open(join(dirname(__file__), 'query.sql')).read()
+query = open(join(dirname(__file__), 'SQL/query.sql')).read()
 movies = psql.read_sql(query, conn)
 
 movies["color"] = np.where(movies["Oscars"] > 0, "orange", "grey")
@@ -30,7 +30,7 @@ movies["alpha"] = np.where(movies["Oscars"] > 0, 0.9, 0.25)
 movies.fillna(0, inplace=True)  # just replace missing values with zero
 movies["revenue"] = movies.BoxOffice.apply(lambda x: '{:,d}'.format(int(x)))
 
-with open(join(dirname(__file__), "razzies-clean.csv")) as f:
+with open(join(dirname(__file__), "CSV/razzies-clean.csv")) as f:
     razzies = f.read().splitlines()
 movies.loc[movies.imdbID.isin(razzies), "color"] = "purple"
 movies.loc[movies.imdbID.isin(razzies), "alpha"] = 0.9
@@ -44,7 +44,7 @@ axis_map = {
     "Year": "Year",
 }
 
-desc = Div(text=open(join(dirname(__file__), "description.html")).read(), width=800)
+desc = Div(text=open(join(dirname(__file__), "Html/description.html")).read(), width=800)
 
 # Create Input controls
 reviews = Slider(title="Minimum number of reviews", value=80, start=10, end=300, step=10)
@@ -53,7 +53,7 @@ max_year = Slider(title="End Year released", start=1940, end=2014, value=2014, s
 oscars = Slider(title="Minimum number of Oscar wins", start=0, end=4, value=0, step=1)
 boxoffice = Slider(title="Dollars at Box Office (millions)", start=0, end=800, value=0, step=1)
 genre = Select(title="Genre", value="All",
-               options=open(join(dirname(__file__), 'genres.txt')).read().split())
+               options=open(join(dirname(__file__), 'Txt/genres.txt')).read().split())
 director = TextInput(title="Director name contains")
 cast = TextInput(title="Cast names contains")
 x_axis = Select(title="X Axis", options=sorted(axis_map.keys()), value="Tomato Meter")
