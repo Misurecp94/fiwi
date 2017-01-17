@@ -16,7 +16,7 @@
 # Erwartungswert standard = 0 (user könnte ändern!) wegen der Random Walk Theory
 # Last day = Result from the first iteration
 
-# Calculate everything from there last days
+#  CALCULATE THE ANNUAL VOLATILITY ! ... .CSV STOCK DATA IS ALWAYS FROM 1.1.2016-31.12.2016
 
 # Todo: implement methods to reduce the varianz
 
@@ -34,6 +34,7 @@ from bokeh.models.widgets import Slider, Select, TextInput
 from bokeh.io import curdoc
 from bokeh.sampledata.movies_data import movie_path
 
+# WE DONT NEED A DATABASE ANYWAY
 conn = sql.connect(movie_path)
 query = open(join(dirname(__file__), 'SQL/query.sql')).read()
 movies = psql.read_sql(query, conn)
@@ -51,7 +52,7 @@ movies.loc[movies.imdbID.isin(razzies), "alpha"] = 0.9
 axis_map = {
     "Tomato Meter": "Meter",
     "Numeric Rating": "numericRating",
-    "Number of Reviews": "Reviews",
+    "Number of days": "Reviews",
     "Box Office (dollars)": "BoxOffice",
     "Length (minutes)": "Runtime",
     "Year": "Year",
@@ -59,8 +60,11 @@ axis_map = {
 
 desc = Div(text=open(join(dirname(__file__), "Html/description.html")).read(), width=800)
 
-# Create Input controls
-reviews = Slider(title="Minimum number of reviews", value=80, start=10, end=300, step=10)
+# Create Input controls Todo: Add Method which automaticaley chooses option based on available csv files??? MAYBE!
+stock=select = Select(title="Stock:", value="Google", options=["Google", "Apple", "Microsoft"])
+days = Slider(title="Number of days to keep the stock", value=100, start=1, end=252, step=1)
+
+# Non used
 min_year = Slider(title="Year released", start=1940, end=2014, value=1970, step=1)
 max_year = Slider(title="End Year released", start=1940, end=2014, value=2014, step=1)
 oscars = Slider(title="Minimum number of Oscar wins", start=0, end=4, value=0, step=1)
@@ -70,7 +74,8 @@ genre = Select(title="Genre", value="All",
 director = TextInput(title="Director name contains")
 cast = TextInput(title="Cast names contains")
 x_axis = Select(title="X Axis", options=sorted(axis_map.keys()), value="Tomato Meter")
-y_axis = Select(title="Y Axis", options=sorted(axis_map.keys()), value="Number of Reviews")
+y_axis = Select(title="Y Axis", options=sorted(axis_map.keys()), value="Number of days")
+
 
 # Create Column Data Source that will be used by the plot
 source = ColumnDataSource(data=dict(x=[], y=[], color=[], title=[], year=[], revenue=[], alpha=[]))
@@ -84,25 +89,27 @@ hover = HoverTool(tooltips=[
 p = figure(plot_height=600, plot_width=700, title="", toolbar_location=None, tools=[hover])
 p.circle(x="x", y="y", source=source, size=7, color="color", line_color=None, fill_alpha="alpha")
 
-
+# HIER: BERECHNE DATEN
 def select_movies():
     genre_val = genre.value
     director_val = director.value.strip()
     cast_val = cast.value.strip()
     selected = movies[
-        (movies.Reviews >= reviews.value) &
+        (movies.Reviews >= days.value) &
         (movies.BoxOffice >= (boxoffice.value * 1e6)) &
         (movies.Year >= min_year.value) &
         (movies.Year <= max_year.value) &
         (movies.Oscars >= oscars.value)
     ]
-    if (genre_val != "All"):
-        selected = selected[selected.Genre.str.contains(genre_val)==True]
-    if (director_val != ""):
-        selected = selected[selected.Director.str.contains(director_val)==True]
-    if (cast_val != ""):
-        selected = selected[selected.Cast.str.contains(cast_val)==True]
+    if genre_val != "All":
+        selected = selected[selected.Genre.str.contains(genre_val)]
+    if director_val != "":
+        selected = selected[selected.Director.str.contains(director_val)]
+    if cast_val != "":
+        selected = selected[selected.Cast.str.contains(cast_val)]
     return selected
+
+# HIER: SETZE UPDATES UND RUFE UPDATEDROPDOWN AUF
 
 
 def update():
@@ -123,19 +130,30 @@ def update():
         alpha=df["alpha"],
     )
 
-controls = [reviews, boxoffice, genre, min_year, max_year, oscars, director, cast, x_axis, y_axis]
+# HIER: BERECHNE DATEN
+
+
+def updateDropDown():
+    print("geht")
+
+controls = [days, boxoffice, genre, min_year, max_year, oscars, director, cast, x_axis, y_axis]
 for control in controls:
     control.on_change('value', lambda attr, old, new: update())
 
-sizing_mode = 'fixed'  # 'scale_width' also looks nice with this example
+dropDowns = [stock]
+for dropDown in dropDowns:
+    dropDown.on_change('value', lambda attr, old, new: updateDropDown())
 
-inputs = widgetbox(*controls, sizing_mode=sizing_mode)
+sizing_mode = 'scale_width'
+
+inputs = widgetbox(*dropDowns, *controls, sizing_mode=sizing_mode)
 l = layout([
     [desc],
     [inputs, p],
 ], sizing_mode=sizing_mode)
 
-update()  # initial load of the data
+update()  # initial load of the data - first load metadata
+updateDropDown()  # initial load of the dropdown - load Stock and calculate results based on metadata
 
 curdoc().add_root(l)
-curdoc().title = "Movies"
+curdoc().title = "Monte Carlo Simulation"
