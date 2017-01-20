@@ -23,18 +23,16 @@
 
 from os.path import dirname, join
 
-import numpy as np
 import pandas as pd
 import os
 
 from bokeh.plotting import figure
-from bokeh.layouts import layout, widgetbox, row, column
+from bokeh.layouts import row, column
+from bokeh.charts import Histogram
 
 from bokeh.models import ColumnDataSource, Div
 from bokeh.models.widgets import PreText, Slider, Select
 from bokeh.io import curdoc
-
-
 
 try:
     from functools import lru_cache
@@ -52,6 +50,7 @@ except ImportError:
 
 
 DATA_DIR = join(dirname(__file__), 'daily')
+DATA_DEFAULT = 'table_aapl.csv'
 
 # Html Beschreibung
 desc = Div(text=open(join(dirname(__file__), "Html/description.html")).read(), width=1000)
@@ -65,14 +64,13 @@ stock_ticker = os.listdir(DATA_DIR)  # returns list
 days = Slider(title="Number of days to keep the stock", value=100, start=1, end=252, step=30)
 iterations = Slider(title="Number of MonteCarlo iterations", value=100, start=1, end=252, step=1)
 stats = PreText(text='', width=500)
-stock = Select(title='Auswahl der Aktie:', value='table_aapl.csv', options=stock_ticker)
+stock = Select(title='Auswahl der Aktie:', value=DATA_DEFAULT, options=stock_ticker)
 select_varianzred = Select(title='Methoden zur Varianzreduktion: ', value='Methode 1', options=['Methode 1', 'Methode 2'])
 
 # Create Column Data Source that will be used by the plot
 source = ColumnDataSource(data=dict(date=[], o=[], h=[], l=[], c=[], volume=[]))
 
 # HIER: LADE DATEN AUS .CSV
-
 
 
 @lru_cache()
@@ -106,6 +104,10 @@ tools = 'pan,wheel_zoom,xbox_select,reset'
 ts1 = figure(plot_width=900, plot_height=500, tools=tools, x_axis_type='datetime', active_drag="xbox_select")
 ts1.line('date', 't1', source=source_static)
 ts1.circle('date', 't1', size=1, source=source, color=None, selection_color="orange")
+
+# Histogram zeichen von returns
+# temp = get_data(DATA_DEFAULT)
+# hist = Histogram(plot_width=500, plot_height=200, bins=50, data=temp[['t1_returns']])
 
 
 # SET-UP CALLBACKS------------------------------------------------------------------
@@ -175,7 +177,9 @@ source.on_change('selected', selection_change)
 
 # set up layout
 c1 = column(stock, select_varianzred, days, iterations)
-c2 = column(stats, ts1)
+# c_ = row(stats, hist)
+c_ = row(stats)
+c2 = column(c_, ts1)
 r1 = row(c1, c2)
 layout = column(desc, r1)
 
