@@ -35,6 +35,7 @@ def valueAtRisk(dailyVolatility, days, startingPrice, numberofIterations, percen
         j = ((endresults[i]-startingPrice)/startingPrice)*100
         returns.append(j)
     value.update({'returnsSorted': returns})
+    value.update({'numberofIterations': numberofIterations})
     value.update({'dataSorted': endresults})
     value.update({'startingPrice': startingPrice})
     var = (1-(percentage / 100)) * (len(returns)+1)
