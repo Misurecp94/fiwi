@@ -7,11 +7,13 @@ def cValueAtRisk(values):
     valueAtRisk = values['valueAtRisk']
     data = values['dataSorted']
     valueThreshhold = np.ceil(values['varThreshhold'])
-    result = (1/valueAtRisk)*np.sum(data[0:int(valueThreshhold)])
+    # Stimmt vlt nicht.
+    result = (1/(values['startingPrice']-values['valueAtRisk']))*np.sum(data[0:int(np.ceil(valueThreshhold))])
     values.update({'cValueAtRisk': result})
     return values
 
 # Funktioniert!
-test = cValueAtRisk(valueAtRisk(0.002, 1, 100, 200, 5))
+test = cValueAtRisk(valueAtRisk(0.02, 100, 1000, 200, 5))
 print(test['cValueAtRisk'])
-print(test['valueAtRisk'])
+print(test['startingPrice'] - test['valueAtRisk'])
+print(1-test['valueAtRisk']/test['startingPrice'])
