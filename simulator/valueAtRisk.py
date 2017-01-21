@@ -30,11 +30,16 @@ def valueAtRisk(dailyVolatility, days, startingPrice, numberofIterations, percen
     value = {}
     endresults = results(dailyVolatility, days, startingPrice, numberofIterations)
     endresults.sort()
+    returns = []
+    for i in range(0, len(endresults)):
+        j = ((endresults[i]-startingPrice)/startingPrice)*100
+        returns.append(j)
+    value.update({'returnsSorted': returns})
     value.update({'dataSorted': endresults})
     value.update({'startingPrice': startingPrice})
-    var = 1-(1-(percentage / 100)) * (len(endresults))
+    var = (1-(percentage / 100)) * (len(returns)+1)
     value.update({'varThreshhold': var})
-    value.update({'valueAtRisk': endresults[ceil(var)]})
+    value.update({'valueAtRisk': returns[round(var)]})
     value.update({'percentage': percentage})
     return value
 
