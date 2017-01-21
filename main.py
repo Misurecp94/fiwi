@@ -7,7 +7,7 @@
 
 # val at risk (VAR) = x% chance y% oder mehr von Portfolio verlieren in einem Tag!
 # x% VAL = (1-(1-x))*total Count of Returns bei sortiertem aufliegen (=x% Quantil!!!)
-# calc val at risk (CVAL) = in the worst x% of returns the average loss will be y%
+# calc val at risk (CVAL) = in the worst x  % of returns the average loss will be y%
 # x% CVAL = (1/VAR x%)*sum(from worst return to value of VAR x%)
 
 
@@ -25,13 +25,14 @@ from os.path import dirname, join
 
 import pandas as pd
 import os
+import download_sample_data
 
 from bokeh.plotting import figure
 from bokeh.layouts import row, column
 from bokeh.charts import Histogram
 
 from bokeh.models import ColumnDataSource, Div
-from bokeh.models.widgets import PreText, Slider, Select
+from bokeh.models.widgets import PreText, Slider, Select, AbstractButton
 from bokeh.io import curdoc
 
 try:
@@ -61,11 +62,13 @@ stock_ticker = os.listdir(DATA_DIR)  # returns list
 
 # set up widgets
 
-days = Slider(title="Number of days to keep the stock", value=100, start=1, end=252, step=30)
+days = Slider(title="Number of days to show", step=30)
+daysToKeepTheStock = Slider(title="Number of days to keep the stock", value=100, start=1, end=252, step=1)
 iterations = Slider(title="Number of MonteCarlo iterations", value=100, start=1, end=252, step=1)
 stats = PreText(text='', width=500)
+stats2 = PreText(text='', width=500)
 stock = Select(title='Auswahl der Aktie:', value=DATA_DEFAULT, options=stock_ticker)
-select_varianzred = Select(title='Methoden zur Varianzreduktion: ', value='Methode 1', options=['Methode 1', 'Methode 2'])
+select_varianzred = Select(title='Methoden zur Varianzreduktion: ', value='Ohne', options=['Ohne', 'Methode 1', 'Methode 2'])
 
 # Create Column Data Source that will be used by the plot
 source = ColumnDataSource(data=dict(date=[], o=[], h=[], l=[], c=[], volume=[]))
@@ -101,9 +104,17 @@ source_static = ColumnDataSource(data=dict(date=[], t1=[], t1_returns=[]))
 tools = 'pan,wheel_zoom,xbox_select,reset'
 
 
-ts1 = figure(plot_width=900, plot_height=500, tools=tools, x_axis_type='datetime', active_drag="xbox_select")
+ts1 = figure(title="Historische Werte der Aktie", plot_width=900, plot_height=500, tools=tools, x_axis_type='datetime',
+             active_drag="xbox_select")
 ts1.line('date', 't1', source=source_static)
 ts1.circle('date', 't1', size=1, source=source, color=None, selection_color="orange")
+
+
+# TODO Change me to the MonteCarlo result of the stock
+ts2 = figure(title="Monte Carlo Simulation", plot_width=900, plot_height=500, tools=tools, x_axis_type='datetime',
+             active_drag="xbox_select")
+ts2.line('date', 't1', source=source_static)
+ts2.circle('date', 't1', size=1, source=source, color=None, selection_color="orange")
 
 # Histogram zeichen von returns
 # temp = get_data(DATA_DEFAULT)
@@ -170,18 +181,29 @@ def selection_change(attrname, old, new):
 def updateDropDown():
     print("geht")
 
+def daysToKeepTheStock_change(attr, old, new):
+    """Recalculate"""
+
 
 stock.on_change('value', stock_change)
 days.on_change('value', days_change)
 source.on_change('selected', selection_change)
+daysToKeepTheStock.on_change('value', daysToKeepTheStock_change)
+
 
 # set up layout
-c1 = column(stock, select_varianzred, days, iterations)
+c1 = column( stock, days)
 # c_ = row(stats, hist)
 c_ = row(stats)
-c2 = column(c_, ts1)
+c2 = column(ts1, c_)
 r1 = row(c1, c2)
-layout = column(desc, r1)
+
+cCalc = column(select_varianzred, daysToKeepTheStock, iterations)
+c_Calc = row(stats2) # Todo Create new stats with the montecarlo result!!
+c2Calc = column(ts2, c_Calc) # Todo Create new table with the montecarlo result!
+r2 = row(cCalc, c2Calc)
+
+layout = column(desc, r1, r2)
 
 
 update_first()  # initial load of the data - first load metadata
@@ -189,3 +211,5 @@ update_first()  # initial load of the data - first load metadata
 
 curdoc().add_root(layout)
 curdoc().title = "Monte Carlo Simulation"
+
+######## For testing purposes!!!!

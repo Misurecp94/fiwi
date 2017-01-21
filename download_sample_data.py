@@ -63,6 +63,13 @@ def extract_zip(zip_name, exclude_term=None):
         print("Bad zipfile (%r): %s" % (zip_name, e))
         raise e
 
+def updateData():
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    zip_file = 'http://quantquote.com/files/quantquote_daily_sp500_83986.zip'
+    zip_dir = 'quantquote_daily_sp500_83986/'
+
+    extract_hosted_zip(data_url=zip_file, save_dir=this_dir, exclude_term=zip_dir)
+
 if __name__ == '__main__':
 
     # info for retrieving and extracting the zip file
