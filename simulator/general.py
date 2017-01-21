@@ -17,6 +17,6 @@ def klassen(value):
     return result
 
 # For Testing purposes!
-test = cValueAtRisk(valueAtRisk(0.01642, 100, 10, 20000, 95)) # 95% iges Konfidenzintervall
+# test = cValueAtRisk(valueAtRisk(0.01642, 100, 10, 20000, 95)) # 95% iges Konfidenzintervall
 # print(test['valueAtRisk'])
-print(klassen(test))
+# print(klassen(test))
