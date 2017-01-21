@@ -14,10 +14,10 @@ def cValueAtRisk(values):
     return values
 
 # Funktioniert!
-test = cValueAtRisk(valueAtRisk(0.002, 100, 100, 20, 99)) # 95% iges Konfidenzintervall
-print(test['cValueAtRisk'])
-print(test['valueAtRisk'])
-print(test['returnsSorted'])
+# test = cValueAtRisk(valueAtRisk(0.002, 100, 100, 20, 99)) # 95% iges Konfidenzintervall
+# print(test['cValueAtRisk'])
+# print(test['valueAtRisk'])
+# print(test['returnsSorted'])
 
 
 # EXPLANATION
