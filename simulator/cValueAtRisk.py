@@ -8,16 +8,15 @@ def cValueAtRisk(values):
     data = values['dataSorted']
     returns = values['returnsSorted']
     valueThreshhold = np.ceil(values['varThreshhold'])
-    # Stimmt vlt nicht.
     result = (1 / valueThreshhold) * np.sum(returns[0:int(np.round(valueThreshhold))])
     values.update({'cValueAtRisk': result})
     return values
 
 # Funktioniert!
-# test = cValueAtRisk(valueAtRisk(0.002, 100, 100, 20, 99)) # 95% iges Konfidenzintervall
-# print(test['cValueAtRisk'])
-# print(test['valueAtRisk'])
-# print(test['returnsSorted'])
+test = cValueAtRisk(valueAtRisk(0.02, 100, 100, 2000, 95)) # 95% iges Konfidenzintervall
+print(test['cValueAtRisk'])
+print(test['valueAtRisk'])
+#print(test['returnsSorted'])
 
 
 # EXPLANATION
