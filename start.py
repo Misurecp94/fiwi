@@ -2,7 +2,7 @@ import subprocess
 import time    # optionally, might be useful to give the server time to initialize
 import sys
 
-args = ['python', '-m', 'bokeh', 'serve','main.py']
+args = ['python', '-m', 'bokeh', 'serve', 'main.py']
 p = subprocess.Popen(args)
 
 time.sleep(4)

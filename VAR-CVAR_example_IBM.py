@@ -33,7 +33,7 @@ print()
 
 # Compute VaRs and CVaRs
 
-h = 3
+h = 1
 alpha = 0.01  # significance level
 lev = 100 * (1 - alpha)
 xanu = t.ppf(alpha, nu)

@@ -45,5 +45,5 @@ def valueAtRisk(dailyVolatility, days, startingPrice, numberofIterations, percen
     return value
 
 #test = valueAtRisk(0.002, 1, 100, 200, 5)
-#print(test['valueAtRisk'])
+#print(test)
 
