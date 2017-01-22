@@ -13,7 +13,7 @@ def cValueAtRisk(values):
     return values
 
 # Funktioniert!
-test = cValueAtRisk(valueAtRisk(0.01642, 1, 10, 20000, 95)) # 95% iges Konfidenzintervall
+#test = cValueAtRisk(valueAtRisk(0.01642, 1, 10, 20000, 95)) # 95% iges Konfidenzintervall
 #print(test['cValueAtRisk'])
 #print(test['valueAtRisk'])
 #print(test['returnsSorted'])
