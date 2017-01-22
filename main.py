@@ -26,15 +26,12 @@ from os.path import dirname, join
 import pandas as pd
 import numpy as np
 import os
-import download_sample_data
 
 from bokeh.plotting import figure
 from bokeh.layouts import row, column
-from bokeh.charts import Histogram
 
 from bokeh.models import ColumnDataSource, Div
-from bokeh.embed import components
-from bokeh.models.widgets import PreText, Slider, Select, Button, AbstractButton
+from bokeh.models.widgets import PreText, Slider, Select, Button
 from bokeh.io import curdoc
 from simulator.valueAtRisk import valueAtRisk
 from simulator.cValueAtRisk import cValueAtRisk
@@ -120,7 +117,6 @@ select_varianzred = Select(title='Methoden zur Varianzreduktion: ', value='Ohne'
 iterations = Slider(title="Number of MonteCarlo iterations", value=10000, start=1000, end=200000, step=1)
 daysToKeepTheStock = Slider(title="Number of days to keep the stock", value=10, start=1, end=30, step=1)
 konfInterval = Slider(title="Konfidenzinterval", value=95, start=1, end=99, step=1)
-stats = PreText(text='', width=500)
 stats2 = PreText(text='Es wurde noch keine Simulation durchgeführt', width=500)
 button = Button(label="Berechnen", button_type="success")
 
@@ -133,14 +129,12 @@ tools = 'pan,wheel_zoom,reset'
 ts1 = figure(name='linechart', title="Historische Werte der Aktie", plot_width=900, plot_height=300, tools=tools, x_axis_type='datetime')
 ts1.line('date', 't1', source=source_static)
 
-# TODO Change me to the MonteCarlo result of the stock
+
 # Histogram zeichen von returns
 # temp = get_data(DATA_DEFAULT)
 hg1 = figure(title="Histogram", plot_width=1200, plot_height=300, tools=tools)
 hist, edges = np.histogram(mc_returns, density=True, bins=50)
 hg1.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_color="#036564", line_color="#033649")
-#
-# hist = Histogram(plot_width=900, plot_height=300, bins=50, data=mc_returns, tools=tools)
 
 
 # SET-UP CALLBACKS------------------------------------------------------------------
@@ -158,8 +152,6 @@ def days_change(attrname, old, new):
     get_data(t1)
     global data_source
     data_source = data_source.iloc[len(data_source[['t1']])-new:len(data_source[['t1']])]
-    #print(len(data_source[['t1']]))
-    update_stats(data_source, t1)
     update_selection()
 
 
@@ -168,7 +160,6 @@ def update_selection():
     global data_source
     source.data = source.from_df(data_source[['t1', 't1_returns', ]])
     source_static.data = source.data
-    update_stats(data_source, t1)
 
 
 def update_first():
@@ -179,7 +170,6 @@ def update_first():
     source_static.data = source.data
     days.end = len(data_source[['t1']])
     days.value = len(data_source[['t1']])
-    update_stats(data_source, t1)
 
 
 def update():
@@ -189,13 +179,6 @@ def update():
     source.data = source.from_df(data_source[['t1', 't1_returns', ]])
     source_static.data = source.data
     days.end = len(data_source[['t1']])
-    #print(np.std(data_source[['t1_returns']]))
-    update_stats(data_source, t1)
-
-
-def update_stats(data, t1):
-    #stats.text = str(data[[t1, t1+'_returns']].describe())
-    stats.text = ''
 
 
 def selection_change(attrname, old, new):
@@ -205,48 +188,35 @@ def selection_change(attrname, old, new):
     selected = source.selected['1d']['indices']
     if selected:
         data = data_source.iloc[selected, :]
-    update_stats(data, t1)
 
 
 def drawMonteCarlo():
+
     VAR = getMonteCarloVAR()
     CVAR = getMonteCarloCVAR(VAR)
     global mc_returns
     mc_returns = VAR['returnsSorted']
-    #hist1 = Histogram(plot_width=900, plot_height=300, bins=50, data=mc_returns, tools=tools)
     hg_ = figure(title="Histogram", id='histog', plot_width=1200, plot_height=300, tools=tools)
     hist_, edges_ = np.histogram(mc_returns, density=True, bins=50)
     hg_.quad(top=hist_, bottom=0, left=edges_[:-1], right=edges_[1:], fill_color="#036564", line_color="#033649")
-
     vola=np.std(data_source[['t1_returns']])
 
     x = "Daily Volatility: {0} \n" \
         "Value at Risk: {1}\n" \
         "conditional Value at Risk: {2}".format(vola[0], VAR['valueAtRisk'], CVAR['cValueAtRisk'])
-    stats2.text=x
+    stats2.text = x
 
     layout.children[2] = hg_
 
-#def updateDropDown():
-#    print("geht")
-
-
-# def daysToKeepTheStock_change(attr, old, new):
-#    """Recalculate"""
-
 stock.on_change('value', stock_change)
 days.on_change('value', days_change)
-#daysToKeepTheStock.on_change('value', daysToKeepTheStock_change)
 button.on_click(drawMonteCarlo)
 
 # set up layout
 c1 = column(stock, days, select_varianzred, daysToKeepTheStock, iterations, konfInterval, button)
-c2 = column(ts1,stats2)
+c2 = column(ts1, stats2)
 r1 = row(c1, c2)
-
 cCalc = column()
-#c2Calc = column(stats2)  # Todo Create new table with the montecarlo result!
-#r2 = row( c2Calc)
 layout = column(desc, r1, hg1)
 
 curdoc().add_root(layout)
@@ -255,6 +225,3 @@ update_first()  # initial load of the data - first load metadata
 
 
 curdoc().title = "Monte Carlo Simulation"
-
-
-######## For testing purposes!!!!
