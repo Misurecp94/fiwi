@@ -194,19 +194,19 @@ def drawMonteCarlo():
 
     VAR = getMonteCarloVAR()
     CVAR = getMonteCarloCVAR(VAR)
-    global mc_returns
+    global mc_returns,hg1
     mc_returns = VAR['returnsSorted']
-    hg_ = figure(title="Histogram", id='histog', plot_width=1200, plot_height=300, tools=tools)
+    hg1 = figure(title="Histogram", id='histog', plot_width=1200, plot_height=300, tools=tools)
     hist_, edges_ = np.histogram(mc_returns, density=True, bins=50)
-    hg_.quad(top=hist_, bottom=0, left=edges_[:-1], right=edges_[1:], fill_color="#036564", line_color="#033649")
+    hg1.quad(top=hist_, bottom=0, left=edges_[:-1], right=edges_[1:], fill_color="#036564", line_color="#033649")
     vola=np.std(data_source[['t1_returns']])
 
-    x = "Daily Volatility: {0} \n" \
-        "Value at Risk: {1}\n" \
-        "conditional Value at Risk: {2}".format(vola[0], VAR['valueAtRisk'], CVAR['cValueAtRisk'])
+    x = "Daily Volatility: {0:.4f} \n" \
+        "Value at Risk: {1:.2f}%\n" \
+        "conditional Value at Risk: {2:.2f}%".format(vola[0], VAR['valueAtRisk'], CVAR['cValueAtRisk'])
     stats2.text = x
 
-    layout.children[2] = hg_
+    layout.children[2] = hg1
 
 stock.on_change('value', stock_change)
 days.on_change('value', days_change)
