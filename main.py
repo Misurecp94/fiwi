@@ -113,7 +113,7 @@ stock_ticker = os.listdir(DATA_DIR)  # returns list
 # set up widgets
 stock = Select(title='Auswahl der Aktie:', value=DATA_DEFAULT, options=stock_ticker)
 days = Slider(title="Number of days to show", step=30)
-select_varianzred = Select(title='Methoden zur Varianzreduktion: ', value='Ohne', options=['Ohne', 'Methode 1', 'Methode 2'])
+#select_varianzred = Select(title='Methoden zur Varianzreduktion: ', value='Ohne', options=['Ohne', 'Methode 1', 'Methode 2'])
 iterations = Slider(title="Number of MonteCarlo iterations", value=10000, start=1000, end=200000, step=1)
 daysToKeepTheStock = Slider(title="Number of days to keep the stock", value=10, start=1, end=30, step=1)
 konfInterval = Slider(title="Konfidenzinterval", value=95, start=1, end=99, step=1)
@@ -201,7 +201,7 @@ def drawMonteCarlo():
     hg1.quad(top=hist_, bottom=0, left=edges_[:-1], right=edges_[1:], fill_color="#036564", line_color="#033649")
     vola=np.std(data_source[['t1_returns']])
 
-    x = "Daily Volatility: {0:.4f} \n" \
+    x = "Average Daily Volatility: {0:.4f} \n" \
         "Value at Risk: {1:.2f}%\n" \
         "conditional Value at Risk: {2:.2f}%".format(vola[0], VAR['valueAtRisk'], CVAR['cValueAtRisk'])
     stats2.text = x
@@ -213,7 +213,7 @@ days.on_change('value', days_change)
 button.on_click(drawMonteCarlo)
 
 # set up layout
-c1 = column(stock, days, select_varianzred, daysToKeepTheStock, iterations, konfInterval, button)
+c1 = column(stock, days, daysToKeepTheStock, iterations, konfInterval, button)
 c2 = column(ts1, stats2)
 r1 = row(c1, c2)
 cCalc = column()
